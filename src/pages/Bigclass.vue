@@ -114,7 +114,7 @@ export default {
     this.fetchData();
   },
   methods: {
-    fetchData(extraParams = {}, isReset = false) {
+    fetchData(extraParams = {}) {
       this.loading = true;
       const params = {
         type_pid: 0,
@@ -125,9 +125,6 @@ export default {
       this.$axios.post("/type/gettype", params).then(res => {
         this.loading = false;
         if (res.success) {
-          if (isReset) {
-            this.resetTable();
-          }
           this.tableData = res.data.list;
           this.total = res.data.total;
         }
@@ -154,13 +151,11 @@ export default {
           })
           .then(res => {
             if (res.success) {
+              this.selection=[]
               this.fetchData();
             }
           });
       });
-    },
-    resetTable() {
-      this.selection = [];
     },
     onUpdate(row) {
       this.action = "update";
@@ -215,7 +210,7 @@ export default {
     handleSearch(filter) {
       this.filter = filter;
       this.currentPage = 1;
-      this.fetchData({}, true);
+      this.fetchData();
     },
     handlePaginationChange() {
       this.fetchData();

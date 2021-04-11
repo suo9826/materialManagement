@@ -7,7 +7,6 @@ let apis = axios.create()
 apis.defaults.baseURL = process.env.API_ROOT
 
 apis.interceptors.response.use(function (response) {
-  console.log('response', response);
   if (response.data && response.data.success) {
     const msg = response.data.msg
     msg && ElementUI.Message.success(msg)

@@ -98,7 +98,6 @@
             </el-option>
           </el-select>
         </el-form-item>
-
         <el-form-item label="名称" prop="type_max">
           <el-input v-model="ruleForm.type_max"></el-input>
         </el-form-item>
@@ -116,118 +115,118 @@
   </div>
 </template>
 <script>
-import Alert from "@/components/Alert";
-import CommonSearch from "../components/CommonSearch.vue";
+import Alert from '@/components/Alert'
+import CommonSearch from '../components/CommonSearch.vue'
 export default {
   components: {
     Alert,
     CommonSearch
   },
-  data() {
+  data () {
     return {
       total: 0,
       currentPage: 1,
-      action: "create",
-      dialogtitle: "新建小类",
-      filter: "",
+      action: 'create',
+      dialogtitle: '新建小类',
+      filter: '',
       visible: false,
       ruleForm: {
-        type_max: "",
-        type_desc: "",
-        type_pid: ""
+        type_max: '',
+        type_desc: '',
+        type_pid: ''
       },
       rules: {
-        type_max: [{ required: true, message: "请输入名称", trigger: "blur" }],
-        type_pid: [{ required: true, message: "请选择大类", trigger: "blur" }]
+        type_max: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+        type_pid: [{ required: true, message: '请选择大类', trigger: 'blur' }]
       },
       selection: [],
       tableData: [],
       bigClassList: [],
       loading: false
-    };
+    }
   },
-  created() {
-    this.fetchData();
-    this.fetchBigClass();
+  created () {
+    this.fetchData()
+    this.fetchBigClass()
   },
   methods: {
-    fetchBigClass() {
-      this.$axios.get("/type/getmax").then(res => {
+    fetchBigClass () {
+      this.$axios.get('/type/getmax').then(res => {
         if (res) {
-          this.bigClassList = res;
+          this.bigClassList = res
         }
-      });
+      })
     },
-    fetchData(extraParams = {}, isReset = false) {
-      this.loading = true;
+    fetchData (extraParams = {}, isReset = false) {
+      this.loading = true
       const params = {
         type_pid: -1,
         pageNum: this.currentPage,
         filter: this.filter,
         ...extraParams
-      };
-      this.$axios.post("/type/gettype", params).then(res => {
-        this.loading = false;
+      }
+      this.$axios.post('/type/gettype', params).then(res => {
+        this.loading = false
         if (res.success) {
           if (isReset) {
-            this.resetTable();
+            this.resetTable()
           }
-          this.tableData = res.data.list;
-          this.total = res.data.total;
+          this.tableData = res.data.list
+          this.total = res.data.total
         }
-      });
+      })
     },
-    handleSelectionChange(selection) {
-      this.selection = selection;
+    handleSelectionChange (selection) {
+      this.selection = selection
     },
-    handleDelete() {
-      this.$confirm("此操作将删除选中数据, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+    handleDelete () {
+      this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       }).then(() => {
         this.$axios
-          .get("/type/delete", {
+          .get('/type/delete', {
             params: {
               ids: this.selection.map(item => item.type_id)
             }
           })
           .then(res => {
             if (res.success) {
-              this.fetchData();
+              this.fetchData()
             }
-          });
-      });
+          })
+      })
     },
-    resetTable() {
-      this.selection = [];
-      this.currentPage = 1;
+    resetTable () {
+      this.selection = []
+      this.currentPage = 1
     },
-    onUpdate(row) {
-      this.action = "update";
-      this.dialogtitle = "编辑小类";
+    onUpdate (row) {
+      this.action = 'update'
+      this.dialogtitle = '编辑小类'
       this.ruleForm = {
         ...this.ruleForm,
         ...row
-      };
-      this.visible = true;
+      }
+      this.visible = true
     },
-    onCreate() {
-      this.action = "create";
-      this.dialogtitle = "新建小类";
+    onCreate () {
+      this.action = 'create'
+      this.dialogtitle = '新建小类'
       this.ruleForm = {
-        type_max: "",
-        type_desc: "",
-        type_pid: ""
-      };
-      this.visible = true;
+        type_max: '',
+        type_desc: '',
+        type_pid: ''
+      }
+      this.visible = true
     },
-    handleSubmit(formName) {
+    handleSubmit (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let path = "/type/inserttype";
-          if (this.action === "update") {
-            path = "/type/updatetype";
+          let path = '/type/inserttype'
+          if (this.action === 'update') {
+            path = '/type/updatetype'
           }
           this.$axios
             .post(path, {
@@ -235,25 +234,25 @@ export default {
             })
             .then(res => {
               if (res.success) {
-                this.visible = false;
-                this.fetchData();
+                this.visible = false
+                this.fetchData()
               }
-            });
+            })
         }
-      });
+      })
     },
-    handleCanel(formName) {
-      this.visible = false;
-      this.$refs[formName].resetFields();
+    handleCanel (formName) {
+      this.visible = false
+      this.$refs[formName].resetFields()
     },
-    handleSearch(filter) {
-      this.filter = filter;
-      this.currentPage = 1;
-      this.fetchData({}, true);
+    handleSearch (filter) {
+      this.filter = filter
+      this.currentPage = 1
+      this.fetchData({}, true)
     },
-    handlePaginationChange() {
-      this.fetchData({}, false);
+    handlePaginationChange () {
+      this.fetchData({}, false)
     }
   }
-};
+}
 </script>

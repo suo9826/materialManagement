@@ -8,120 +8,78 @@
       :model="ruleForm"
       :rules="rules"
     >
-      <el-form-item label="录入方式" prop="methods" required>
+      <el-form-item label="录入方式" prop="methods">
         <el-radio-group v-model="ruleForm.methods">
           <el-radio label="1">人工录入</el-radio>
-          <el-radio label="2">图片录入</el-radio>
           <el-radio label="3">文件录入</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item
-        v-if="ruleForm.methods === '2'"
-        label="上传图片"
-        prop="img"
-        :required="ruleForm.methods === '2'"
-      >
-        <el-upload
-          class="avatar-uploader"
-          action="https://jsonplaceholder.typicode.com/posts/"
-          :show-file-list="false"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload"
-        >
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload>
-      </el-form-item>
-      <el-form-item
         v-if="ruleForm.methods === '3'"
         label="上传文件"
-        prop="file"
         :required="ruleForm.methods === '3'"
       >
         <el-upload
           class="upload-demo"
           drag
-          action="https://jsonplaceholder.typicode.com/posts/"
+          action=""
           :before-upload="beforeFileUpload"
+          :multiple="false"
+          :file-list="fileList"
+          name="excelFile"
+          :http-request="uploadFile"
+          :on-change="handleFileListChange"
+          :on-remove="handleFileRemove"
         >
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
           <div class="el-upload__tip" slot="tip">
-            只能上传txt文件，且不超过500kb
+            只能上传excel，且不超过2MB
+            <a @click="loadDemo">下载示例模板</a>
           </div>
         </el-upload>
       </el-form-item>
-      <el-form-item label="大类" prop="max" required>
-        <el-select filterable v-model="ruleForm.max" placeholder="请选择">
+      <el-form-item label="产品名称" prop="product_id">
+        <el-select
+          filterable
+          v-model="ruleForm.product_id"
+          placeholder="请选择"
+        >
           <el-option
             v-for="item in productList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
+            :key="item.product_id"
+            :label="item.product_name"
+            :value="item.product_id"
           >
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="小类" prop="small" required>
-        <el-select filterable v-model="ruleForm.small" placeholder="请选择">
-          <el-option
-            v-for="item in productList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="产品名称" prop="name" required>
-        <el-input v-model="ruleForm.name"></el-input>
-      </el-form-item>
-      <el-form-item label="时间" required>
+      <el-form-item label="时间" prop="date">
         <el-date-picker
           type="date"
           placeholder="选择日期"
           v-model="ruleForm.date"
-          style="width: 100%;"
+          style="width: 100%"
           value-format="timestamp"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="数量" prop="num" required>
+      <el-form-item label="数量" prop="product_nums" required>
         <el-input-number
-          v-model="num"
+          v-model="ruleForm.product_nums"
           :min="1"
           label="描述文字"
         ></el-input-number>
-        <!-- <el-input-number v-model="ruleForm.num" :min="1"></el-input-number> -->
       </el-form-item>
-      <el-form-item label="单价" prop="singlePrice" required>
-        <el-input-number
-          :min="0.0"
-          :precision="2"
-          :step="0.1"
-          v-model="ruleForm.singlePrice"
-        ></el-input-number>
-      </el-form-item>
-      <el-form-item label="总价格" prop="totalPrice" required>
-        <el-input-number
-          :min="0.0"
-          :precision="2"
-          :step="0.1"
-          v-model="ruleForm.totalPrice"
-        ></el-input-number>
-      </el-form-item>
-      <el-form-item label="经办人" prop="agent" required>
-        <el-input
-          placeholder="请输入经办人"
-          v-model="ruleForm.agent"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="供应商" prop="supplier" required>
-        <el-select v-model="ruleForm.supplier" placeholder="请选择供应商">
+      <el-form-item label="供应商" prop="product_supplier">
+        <el-select
+          v-model="ruleForm.product_supplier"
+          placeholder="请选择供应商"
+        >
           <el-option
             v-for="item in suppliers"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
+            :key="item"
+            :label="item"
+            :value="item"
           >
           </el-option>
         </el-select>
@@ -137,84 +95,120 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
-      num: 1,
-      productList: [
-        { id: 1, name: "产品1" },
-        { id: 2, name: "产品2" }
-      ],
-      suppliers: [
-        { id: 1, name: "供应商1" },
-        { id: 2, name: "供应商2" }
-      ],
+      suppliers: [],
       ruleForm: {
-        methods: "1",
-        name: "",
-        num: 1,
-        singlePrice: 0,
-        totalPrice: 0.0,
-        agent: "",
-        supplier: "",
-        date: ""
+        product_id: '',
+        methods: '1',
+        product_nums: 1,
+        product_supplier: '',
+        date: ''
       },
-      rules: {},
-      imageUrl: ""
-    };
+      rules: {
+        product_id: [{ required: true, message: '请选择', trigger: 'blur' }],
+        product_supplier: [
+          { required: true, message: '请选择', trigger: 'blur' }
+        ],
+        date: [{ required: true, message: '请选择', trigger: 'blur' }]
+      },
+      file: null,
+      fileList: [],
+      productList: []
+    }
   },
-  created() {
-    this.$axios.get("/product/list").then(res => {
-      this.productList = res.data;
-    });
+  created () {
+    this.fetchProductList()
+    this.fetchSuppliers()
   },
   methods: {
-    submitForm(formName) {
+    fetchProductList () {
+      this.$axios.get('/product/list').then(res => {
+        if (res) {
+          this.productList = res
+        }
+      })
+    },
+    fetchSuppliers () {
+      this.$axios.get('/supplier/getAllSupplierName').then(res => {
+        if (res) {
+          this.suppliers = res
+        }
+      })
+    },
+    submitForm (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$axios
-            .post("/product/ruku", {
-              ...this.ruleForm
-            })
-            .then(res => {
-              console.log(res);
-            });
-        } else {
-          return false;
+          this.$axios.post('/product/ruku', {
+            ...this.ruleForm
+          })
         }
-      });
+      })
     },
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
+    resetForm (formName) {
+      this.$refs[formName].resetFields()
     },
-    handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
-    },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg";
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isJPG) {
-        this.$message.error("上传头像图片只能是 JPG 格式!");
+    beforeFileUpload (file) {
+      this.file = file
+      const isExcel =
+        file.type ===
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isExcel) {
+        this.$message.error('上传文件只能是excel')
       }
       if (!isLt2M) {
-        this.$message.error("上传头像图片大小不能超过 2MB!");
+        this.$message.error('上传文件大小不能超过 2MB!')
       }
-      return isJPG && isLt2M;
+      return isExcel && isLt2M
     },
-    beforeFileUpload(file) {
-      const isTXT = file.type === "text/plain";
-      const isLt500KB = file.size / 1024 < 500;
-      if (!isTXT) {
-        this.$message.error("上传文件只能是 TXT 格式!");
+    uploadFile () {
+      let formData = new FormData()
+      formData.append('excelFile', this.file)
+      this.$axios
+        .post('/readExcel', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data; charset=utf-8'
+          }
+        })
+        .then(res => {
+          if (res.success) {
+            const {
+              date,
+              product_id,
+              product_nums,
+              product_root,
+              product_supplier
+            } = res.data
+            this.ruleForm = {
+              product_id: product_id || '',
+              methods: '3',
+              product_nums: product_nums || 1,
+              product_supplier: product_supplier || '',
+              date: date || '',
+              product_root: product_root || ''
+            }
+            console.log(this.fileList)
+          }
+        })
+    },
+    handleFileListChange (file, fileList) {
+      this.fileList = fileList.slice(-1)
+    },
+    handleFileRemove () {
+      this.ruleForm = {
+        ...this.ruleForm,
+        product_name: '',
+        methods: '3',
+        product_nums: 1,
+        product_supplier: '',
+        date: ''
       }
-      if (!isLt500KB) {
-        this.$message.error("上传文件大小不能超过 500KB!");
-      }
-      return isJPG && isLt2M;
     }
   }
-};
+}
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .avatar-uploader .el-upload {
   cursor: pointer;
   position: relative;
@@ -224,6 +218,9 @@ export default {
   border-color: #409eff;
 }
 .avatar-uploader-icon {
+  position: absolute;
+  left: 0;
+  top: 0;
   font-size: 28px;
   color: #8c939d;
   width: 178px;
@@ -236,5 +233,18 @@ export default {
   height: 178px;
   display: block;
   border: 1px dashed #d9d9d9;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  .icon-delete {
+    display: none;
+  }
+  &:hover {
+    .icon-delete {
+      display: block;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+  }
 }
 </style>

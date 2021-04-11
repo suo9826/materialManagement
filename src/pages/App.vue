@@ -69,16 +69,26 @@
             </el-submenu>
             <el-menu-item index="/stockManage">
               <i class="el-icon-document"></i>
-              <span slot="title">库存管理</span>
+              <span slot="title">库存</span>
             </el-menu-item>
             <el-menu-item index="/supplier">
               <i class="el-icon-setting"></i>
               <span slot="title">供应商</span>
             </el-menu-item>
-            <el-menu-item index="/report">
-              <i class="el-icon-setting"></i>
-              <span slot="title">报表</span>
-            </el-menu-item>
+            <el-submenu index="4">
+              <template slot="title">
+                <i class="el-icon-location"></i>
+                <span>报表</span>
+              </template>
+              <el-menu-item index="/put-report">
+                <i class="el-icon-setting"></i>
+                <span slot="title">入库记录</span>
+              </el-menu-item>
+              <el-menu-item index="/out-report">
+                <i class="el-icon-setting"></i>
+                <span slot="title">出库记录</span>
+              </el-menu-item>
+            </el-submenu>
           </el-menu>
         </el-aside>
         <el-main>

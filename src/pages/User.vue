@@ -233,7 +233,7 @@ export default {
         this.level = res.user_level;
       });
     },
-    fetchData(extraParams = {}, isReset = false) {
+    fetchData(extraParams = {}) {
       this.loading = true;
       const params = {
         pageNum: this.currentPage,
@@ -243,9 +243,6 @@ export default {
       this.$axios.post("/user/list", params).then(res => {
         this.loading = false;
         if (res.success) {
-          if (isReset) {
-            this.resetTable();
-          }
           let list = res.data.list;
           if (list.length > 10) {
             list.slice(0, 10);
@@ -268,12 +265,14 @@ export default {
           params: {
             ids: this.selection.map(item => item.user_id)
           }
-        });
+        }).then((res)=>{
+          if(res.success){
+            this.selection=[]
+            this.fetchData(_,true)
+          }
+        })
+        ;
       });
-    },
-    resetTable() {
-      this.selection = [];
-      this.currentPage = 1;
     },
     onUpdate(row) {
       this.action = "update";
@@ -343,10 +342,10 @@ export default {
     handleSearch(filter) {
       this.filter = filter;
       this.currentPage = 1;
-      this.fetchData({}, true);
+      this.fetchData();
     },
-    handlePaginationChange(currentPage) {
-      this.fetchData({}, false);
+    handlePaginationChange() {
+      this.fetchData();
     },
     checkSelect(row, index) {
       return row.check;

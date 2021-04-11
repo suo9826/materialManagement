@@ -11,7 +11,8 @@ import Smallclass from '@/pages/Smallclass'
 import Supplier from '@/pages/Supplier'
 import User from '@/pages/User'
 import StockManage from '@/pages/StockManage'
-import Report from '@/pages/Report'
+import OutReport from '@/pages/out-report'
+import PutReport from '@/pages/put-report'
 Vue.use(Router)
 
 export default new Router({
@@ -80,9 +81,14 @@ export default new Router({
           component: StockManage
         },
         {
-          path: '/report',
-          name: 'Report',
-          component: Report
+          path: '/out-report',
+          name: 'out-report',
+          component: OutReport
+        },
+        {
+          path: '/put-report',
+          name: 'put-report',
+          component: PutReport
         },
       ]
     },
