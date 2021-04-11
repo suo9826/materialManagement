@@ -67,7 +67,7 @@ export default {
   methods: {
     fetchData () {
       this.loading = true
-      this.$axios.get('/smockWarning').then(res => {
+      this.$axios.get('/typemaxStatus').then(res => {
         this.loading = false
         if (res.success) {
           this.option = this.calcOption(res.data)
