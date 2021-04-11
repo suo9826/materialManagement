@@ -10,76 +10,82 @@
   ></charts-card>
 </template>
 <script>
-import ChartsCard from "../../components/ChartsCard.vue";
+import ChartsCard from '../../components/ChartsCard.vue'
 
 const basicOption = {
   tooltip: {
-    trigger: "item"
+    trigger: 'item'
   },
   legend: {
     // orient: 'vertical',
     // left: 'left'
     show: true,
-    right: "auto"
+    right: 'auto'
   },
   series: [
     {
-      name: "访问来源",
-      type: "pie",
-      radius: "50%",
+      id: 'type_max',
+      name: '大类',
+      type: 'pie',
+      radius: '50%',
       data: [
-        { value: 1048, name: "搜索引擎" },
-        { value: 735, name: "直接访问" },
-        { value: 580, name: "邮件营销" },
-        { value: 484, name: "联盟广告" },
-        { value: 300, name: "视频广告" }
+        { value: 1048, name: '搜索引擎' },
+        { value: 735, name: '直接访问' },
+        { value: 580, name: '邮件营销' },
+        { value: 484, name: '联盟广告' },
+        { value: 300, name: '视频广告' }
       ],
       emphasis: {
         itemStyle: {
           shadowBlur: 10,
           shadowOffsetX: 0,
-          shadowColor: "rgba(0, 0, 0, 0.5)"
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
         }
       }
     }
   ]
-};
+}
 
 export default {
   components: { ChartsCard },
-  data() {
+  data () {
     return {
       option: basicOption,
-      loading: false
-    };
+      loading: false,
+      interval: null
+    }
   },
-  created() {
-    this.fetchData();
+  created () {
+    this.fetchData()
+    this.interval = setInterval(() => {
+      this.fetchData()
+    }, 60000)
+  },
+  beforeDestroy () {
+    this.interval = clearInterval(this.interval)
   },
   methods: {
-    fetchData() {
-      this.loading = true;
-      this.$axios.get("/smockWarning").then(res => {
-        this.loading = false;
-        if (res.data.success) {
-          this.option = this.calcOption(res.data.data);
+    fetchData () {
+      this.loading = true
+      this.$axios.get('/smockWarning').then(res => {
+        this.loading = false
+        if (res.success) {
+          this.option = this.calcOption(res.data)
         }
-      });
+      })
     },
-    handleFresh() {
-      this.fetchData();
+    handleFresh () {
+      this.fetchData()
     },
-    calcOption(data = {}) {
-      const option = cloneDeep(basicOption);
-      option.xAxis.data = data.map(item => item.name);
-      option.series[0].data = data.map(item => ({
-        value: (parseInt(item.val) / 1048576).toFixed(2),
-        oriData: item
-      }));
-      return option;
+    calcOption (data = {}) {
+      const option = cloneDeep(basicOption)
+      option.series = option.series.map(s => {
+        return { ...s, data: data[s.id] || [] }
+      })
+      return option
     }
   }
-};
+}
 </script>
 <style scoped>
 .container {
