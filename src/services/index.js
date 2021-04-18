@@ -17,7 +17,8 @@ apis.interceptors.response.use(function (response) {
   }
   return response.data ? response.data : response;
 }, err => {
-  console.log(err);
+  console.log(err)
+  return false
 });
 
 export default apis;

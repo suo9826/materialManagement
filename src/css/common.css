@@ -1,46 +1,47 @@
-body{
-    margin: 0px;
-    padding: 0px;
+body {
+  margin: 0px;
+  padding: 0px;
 }
-*{
-    box-sizing: border-box;
+* {
+  box-sizing: border-box;
 }
 .containerForm {
-    width: 400px;
-    margin-left: 200px;
-    padding-top: 10px;
+  width: 400px;
+  margin-left: 200px;
+  padding-top: 10px;
 }
-.el-select{
-    width: 320px;
+.el-select {
+  width: 320px;
 }
-.formFotter{
-    display: flex;
-    justify-content: space-around;
+.formFotter {
+  display: flex;
+  justify-content: space-around;
 }
-a{
-    cursor: pointer;
+a {
+  cursor: pointer;
 }
-.container{
-    background-color: white;
-    height: 100%;
-    overflow: hidden;
-    padding: 20px;
-    position: relative;
-    overflow: auto;
+.container {
+  background-color: white;
+  height: 100%;
+  overflow: hidden;
+  padding: 20px;
+  position: relative;
+  overflow: auto;
 }
-.el-pagination{
-    position: absolute;
-    bottom: 5px;
-    left:30px;
-    height: 35px;
+.el-pagination {
+  position: absolute;
+  bottom: 5px;
+  left: 30px;
+  height: 35px;
 }
-.el-input,.el-input-number {
-    width: 320px;
+.el-input,
+.el-input-number {
+  width: 320px;
 }
 .clearfix:before,
 .clearfix:after {
   display: table;
-  content: '';
+  content: "";
 }
 .clearfix:after {
   clear: both;
@@ -53,29 +54,25 @@ a{
   width: 100%;
   height: 400px;
 }
-.toolbar{
-    height: 35px;
+.toolbar {
+  height: 35px;
 }
-.el-table{
-    height: calc(100% - 120px);
+.el-table {
+  height: calc(100% - 120px);
 }
-
 /* 滚动槽 */
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-    border-radius: 3px;
-    background: rgba(0,0,0,0.06);
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
 }
 /* 滚动条滑块 */
 ::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-    background: rgba(0,0,0,0.12);
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
 }
-
-
-

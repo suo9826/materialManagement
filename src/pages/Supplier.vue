@@ -12,6 +12,9 @@
       >
         删除
       </el-button>
+      <el-button @click="fetchData" icon="el-icon-refresh" size="small">
+        刷新
+      </el-button>
       <!-- <el-button
         :disabled="selection.length === 0"
         @click="handleExport"
@@ -131,7 +134,7 @@ export default {
     Alert,
     CommonSearch
   },
-  data () {
+  data() {
     var checkPhone = (rule, value, callback) => {
       if (!value) {
         return callback(new Error('请输入电话'))
@@ -171,11 +174,11 @@ export default {
       loading: false
     }
   },
-  created () {
+  created() {
     this.fetchData()
   },
   methods: {
-    fetchData (extraParams = {}, isReset = false) {
+    fetchData(extraParams = {}, isReset = false) {
       this.loading = true
       const params = {
         pageNum: this.currentPage,
@@ -193,10 +196,10 @@ export default {
         }
       })
     },
-    handleSelectionChange (selection) {
+    handleSelectionChange(selection) {
       this.selection = selection
     },
-    handleDelete () {
+    handleDelete() {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -215,11 +218,11 @@ export default {
           })
       })
     },
-    resetTable () {
+    resetTable() {
       this.selection = []
       this.currentPage = 1
     },
-    onUpdate (row) {
+    onUpdate(row) {
       this.action = 'update'
       this.dialogtitle = '编辑供应商'
       this.ruleForm = {
@@ -228,7 +231,7 @@ export default {
       }
       this.visible = true
     },
-    onCreate () {
+    onCreate() {
       this.action = 'create'
       this.dialogtitle = '新建供应商'
       this.ruleForm = {
@@ -241,7 +244,7 @@ export default {
       }
       this.visible = true
     },
-    handleSubmit (formName) {
+    handleSubmit(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$axios
@@ -257,19 +260,19 @@ export default {
         }
       })
     },
-    handleCanel (formName) {
+    handleCanel(formName) {
       this.visible = false
       this.$refs[formName].resetFields()
     },
-    handleSearch (filter) {
+    handleSearch(filter) {
       this.filter = filter
       this.currentPage = 1
       this.fetchData({}, true)
     },
-    handlePaginationChange () {
+    handlePaginationChange() {
       this.fetchData({}, false)
     },
-    handleExport () {
+    handleExport() {
       this.$confirm('确认导出选中数据吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

@@ -12,6 +12,17 @@
       >
         删除
       </el-button>
+      <el-button
+        :disabled="selection.length === 0"
+        @click="handleExport"
+        icon="el-icon-download"
+        size="small"
+      >
+        导出
+      </el-button>
+      <el-button @click="fetchData" icon="el-icon-refresh" size="small">
+        刷新
+      </el-button>
       <common-search
         @onSearch="handleSearch"
         placeholder="请输入名称/所属类别"
@@ -26,9 +37,10 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
       height="calc(100% - 120px)"
+      v-loading="loading"
     >
       <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column label="名称" min-width="200px">
+      <el-table-column label="名称" min-width="100px">
         <template slot-scope="scope">
           <el-link
             :underline="false"
@@ -41,28 +53,51 @@
       </el-table-column>
       <el-table-column
         prop="product_nums"
-        min-width="200px"
+        min-width="100px"
         label="数量"
         show-overflow-tooltip
       >
       </el-table-column>
       <el-table-column
         prop="product_warning"
-        min-width="200px"
+        min-width="100px"
         label="预警值"
         show-overflow-tooltip
       >
       </el-table-column>
       <el-table-column
         prop="product_price"
-        min-width="200px"
+        min-width="100px"
         label="单价"
         show-overflow-tooltip
       >
       </el-table-column>
-      <el-table-column min-width="200px" label="所属类别" show-overflow-tooltip>
+      <el-table-column
+        prop="product_allprice"
+        min-width="100px"
+        label="总价"
+        show-overflow-tooltip
+      >
+      </el-table-column>
+      <el-table-column min-width="100px" label="所属类别" show-overflow-tooltip>
         <template slot-scope="scope">
           {{ scope.row.product_typemax }}-{{ scope.row.product_typemin }}
+        </template>
+      </el-table-column>
+      <el-table-column min-width="100px" label="图片" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <div class="demo-image__preview">
+            <el-image
+              v-if="scope.row.product_root !== ''"
+              style="width: 20px; height: 20px"
+              :src="scope.row.product_root"
+              :preview-src-list="[scope.row.product_root]"
+            >
+              <div slot="error" class="image-slot">
+                <i class="el-icon-picture-outline"></i>
+              </div>
+            </el-image>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -153,7 +188,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="图片" prop="img">
+        <el-form-item label="图片" prop="img" style="display: inline-block">
           <el-upload
             class="avatar-uploader"
             action=""
@@ -169,15 +204,15 @@
                 :src="ruleForm.product_root"
               />
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-              <span>
-                <i
-                  v-if="ruleForm.product_root"
-                  @click="handleRemove"
-                  class="el-icon-delete avatar-uploader-icon icon-delete"
-                ></i>
-              </span>
             </div>
           </el-upload>
+        </el-form-item>
+        <el-form-item
+          prop="product_price"
+          v-if="ruleForm.product_root !== ''"
+          style="display: inline-block; margin-left: -80px"
+        >
+          <el-button type="text" @click="handleClearPhoto">清除图片</el-button>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -192,12 +227,13 @@
 <script>
 import Alert from '@/components/Alert'
 import CommonSearch from '../components/CommonSearch.vue'
+import { templateDownLoad } from "./util";
 export default {
   components: {
     Alert,
     CommonSearch
   },
-  data () {
+  data() {
     const checkName = (rule, value, callback) => {
       if (value == '') {
         callback(new Error('请输入名称'))
@@ -262,16 +298,17 @@ export default {
       bigClassList: [],
       suppliers: [],
       oldName: '',
-      file: null
+      file: null,
+      loading: false
     }
   },
-  created () {
+  created() {
     this.fetchBigClass()
     this.fetchSuppliers()
     this.fetchData()
   },
   methods: {
-    beforeAvatarUpload (file) {
+    beforeAvatarUpload(file) {
       this.file = file
       const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
@@ -283,7 +320,7 @@ export default {
       }
       return isJPG && isLt2M
     },
-    upload () {
+    upload() {
       let formData = new FormData()
       formData.append('file', this.file)
       this.$axios
@@ -299,49 +336,51 @@ export default {
           }
         })
     },
-    loadDemo () {
+    loadDemo() {
       this.$axios.get('/product/ruku/loadDemo')
     },
-    handleRemove () {
+    handleRemove() {
       this.ruleForm.product_root = ''
     },
-    fetchSuppliers () {
+    fetchSuppliers() {
       this.$axios.get('/supplier/getAllSupplierName').then(res => {
         if (res) {
           this.suppliers = res
         }
       })
     },
-    handleChange (value) {
+    handleChange(value) {
       this.ruleForm.product_typemin = ''
       this.$axios.get('/type/getmin', { params: { id: value } }).then(res => {
         this.smallList = res
       })
     },
-    fetchBigClass () {
+    fetchBigClass() {
       this.$axios.get('/type/getmax').then(res => {
         if (res) {
           this.bigClassList = res
         }
       })
     },
-    fetchData (extraParams = {}) {
+    fetchData(extraParams = {}) {
+      this.loading = true
       const params = {
         pageNum: this.currentPage,
         filter: this.filter,
         ...extraParams
       }
       this.$axios.post('/product/getbytype', params).then(res => {
-        if (res) {
+        if (res.success) {
+          this.loading = false
           this.tableData = res.data.list
           this.total = res.data.total
         }
       })
     },
-    handleSelectionChange (selection) {
+    handleSelectionChange(selection) {
       this.selection = selection
     },
-    handleDelete () {
+    handleDelete() {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -361,7 +400,7 @@ export default {
           })
       })
     },
-    onUpdate (row) {
+    onUpdate(row) {
       this.action = 'update'
       this.oldName = row.product_name
       this.dialogtitle = '编辑产品'
@@ -371,7 +410,16 @@ export default {
           this.smallList = res
         })
       this.ruleForm = {
-        ...this.ruleForm,
+        product_name: '',
+        product_nums: 1,
+        product_price: 0,
+        product_supplier: [],
+        product_typemax: '',
+        product_typemin: '',
+        product_warning: 0,
+        product_root: ''
+      }
+      this.ruleForm = {
         ...row,
         product_supplier: row.product_supplier.split(','),
         product_typemax: row.type_id1,
@@ -379,7 +427,7 @@ export default {
       }
       this.visible = true
     },
-    onCreate () {
+    onCreate() {
       this.action = 'create'
       this.dialogtitle = '新建产品'
       this.ruleForm = {
@@ -394,7 +442,7 @@ export default {
       }
       this.visible = true
     },
-    handleSubmit (formName) {
+    handleSubmit(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$axios
@@ -411,22 +459,45 @@ export default {
         }
       })
     },
-    handleCanel (formName) {
+    handleCanel(formName) {
       this.visible = false
       this.$refs[formName].resetFields()
     },
-    handleSearch (filter) {
+    handleSearch(filter) {
       this.filter = filter
       this.currentPage = 1
       this.fetchData()
     },
-    handlePaginationChange (currentPage) {
+    handlePaginationChange(currentPage) {
       this.fetchData()
-    }
+    },
+    handleClearPhoto() {
+      this.ruleForm.product_root = ""
+    },
+    handleExport() {
+      this.$confirm('确认导出选中数据吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const ids = this.selection.map(item => item.product_id).join(',')
+        this.$axios.get('/export/kucun', { params: { ids } })
+          .then(res => {
+            if (res === false) {
+              this.$message.error('导出失败')
+              return null
+            }
+            this.selection = []
+            this.$refs.multipleTable.clearSelection();
+            const url = `http://localhost:3000/api/export/kucun?ids=${ids}`
+            templateDownLoad(url)
+          })
+      })
+    },
   }
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .avatar-uploader .el-upload {
   cursor: pointer;
   position: relative;
@@ -458,11 +529,9 @@ export default {
   .icon-delete {
     display: none;
   }
-  &:hover {
-    .icon-delete {
-      display: block;
-      background-color: rgba(0, 0, 0, 0.5);
-    }
-  }
+}
+.el-dialog__body {
+  max-height: calc(100vh - 15vh - 54px - 70px - 50px);
+  overflow: auto;
 }
 </style>

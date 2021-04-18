@@ -11,16 +11,15 @@
 </template>
 <script>
 import ChartsCard from '../../components/ChartsCard.vue'
-
+import { cloneDeep } from 'lodash'
 const basicOption = {
   tooltip: {
-    trigger: 'item'
+    trigger: 'item',
+    formatter: '{b} <br />总资产：{c}'
   },
   legend: {
-    // orient: 'vertical',
-    // left: 'left'
     show: true,
-    right: 'auto'
+    right: 20
   },
   series: [
     {
@@ -28,13 +27,6 @@ const basicOption = {
       name: '大类',
       type: 'pie',
       radius: '50%',
-      data: [
-        { value: 1048, name: '搜索引擎' },
-        { value: 735, name: '直接访问' },
-        { value: 580, name: '邮件营销' },
-        { value: 484, name: '联盟广告' },
-        { value: 300, name: '视频广告' }
-      ],
       emphasis: {
         itemStyle: {
           shadowBlur: 10,
@@ -48,24 +40,24 @@ const basicOption = {
 
 export default {
   components: { ChartsCard },
-  data () {
+  data() {
     return {
       option: basicOption,
       loading: false,
       interval: null
     }
   },
-  created () {
+  created() {
     this.fetchData()
     this.interval = setInterval(() => {
       this.fetchData()
     }, 60000)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     this.interval = clearInterval(this.interval)
   },
   methods: {
-    fetchData () {
+    fetchData() {
       this.loading = true
       this.$axios.get('/typemaxStatus').then(res => {
         this.loading = false
@@ -74,14 +66,15 @@ export default {
         }
       })
     },
-    handleFresh () {
+    handleFresh() {
       this.fetchData()
     },
-    calcOption (data = {}) {
+    calcOption(data = {}) {
       const option = cloneDeep(basicOption)
       option.series = option.series.map(s => {
         return { ...s, data: data[s.id] || [] }
       })
+      console.log(option);
       return option
     }
   }

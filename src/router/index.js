@@ -13,6 +13,7 @@ import User from '@/pages/User'
 import StockManage from '@/pages/StockManage'
 import OutReport from '@/pages/out-report'
 import PutReport from '@/pages/put-report'
+import Plan from '@/pages/plan'
 Vue.use(Router)
 
 export default new Router({
@@ -89,6 +90,11 @@ export default new Router({
           path: '/put-report',
           name: 'put-report',
           component: PutReport
+        },
+        {
+          path: '/plan',
+          name: 'plan',
+          component: Plan
         },
       ]
     },

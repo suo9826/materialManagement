@@ -17,6 +17,9 @@
       >
         删除
       </el-button>
+      <el-button @click="fetchData" icon="el-icon-refresh" size="small">
+        刷新
+      </el-button>
       <common-search @onSearch="handleSearch"></common-search>
     </div>
     <alert :num="selection.length"></alert>
@@ -28,6 +31,7 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
       height="calc(100% - 120px)"
+      v-loading="loading"
     >
       <el-table-column :selectable="checkSelect" type="selection" width="55">
       </el-table-column>
@@ -218,7 +222,8 @@ export default {
       tableData: [],
       editable: false,
       level: 1,
-      userInfo: {}
+      userInfo: {},
+      loading: false
     };
   },
   created() {
@@ -265,13 +270,13 @@ export default {
           params: {
             ids: this.selection.map(item => item.user_id)
           }
-        }).then((res)=>{
-          if(res.success){
-            this.selection=[]
-            this.fetchData(_,true)
+        }).then((res) => {
+          if (res.success) {
+            this.selection = []
+            this.fetchData(_, true)
           }
         })
-        ;
+          ;
       });
     },
     onUpdate(row) {

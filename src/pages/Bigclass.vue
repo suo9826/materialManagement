@@ -12,6 +12,9 @@
       >
         删除
       </el-button>
+      <el-button @click="fetchData" icon="el-icon-refresh" size="small">
+        刷新
+      </el-button>
       <common-search @onSearch="handleSearch"></common-search>
     </div>
     <alert :num="selection.length"></alert>
@@ -151,7 +154,7 @@ export default {
           })
           .then(res => {
             if (res.success) {
-              this.selection=[]
+              this.selection = []
               this.fetchData();
             }
           });

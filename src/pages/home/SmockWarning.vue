@@ -11,7 +11,7 @@
 </template>
 <script>
 import ChartsCard from '../../components/ChartsCard.vue'
-
+import { cloneDeep } from 'lodash'
 const basicOption = {
   tooltip: {
     trigger: 'axis',
@@ -33,10 +33,6 @@ const basicOption = {
   xAxis: [
     {
       type: 'category',
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      axisTick: {
-        alignWithLabel: true
-      }
     }
   ],
   yAxis: [
@@ -49,39 +45,35 @@ const basicOption = {
       name: '数量',
       id: 'product_nums',
       type: 'line',
-      barWidth: '60%',
-      data: [10, 52, 200, 334, 390, 330, 220]
     },
     {
       name: '预警值',
       id: 'product_warning',
       type: 'line',
-      barWidth: '60%',
-      data: [10, 10, 10, 10, 10, 10, 10]
     }
   ]
 }
 
 export default {
   components: { ChartsCard },
-  data () {
+  data() {
     return {
       option: basicOption,
       loading: false,
       interval: null
     }
   },
-  created () {
+  created() {
     this.fetchData()
     this.interval = setInterval(() => {
       this.fetchData()
     }, 60000)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     this.interval = clearInterval(this.interval)
   },
   methods: {
-    fetchData () {
+    fetchData() {
       this.loading = true
       this.$axios.get('/smockWarning').then(res => {
         this.loading = false
@@ -90,12 +82,12 @@ export default {
         }
       })
     },
-    handleFresh () {
+    handleFresh() {
       this.fetchData()
     },
-    calcOption (data = {}) {
+    calcOption(data = {}) {
       const option = cloneDeep(basicOption)
-      option.xAxis.data = data.map(item => item.product_name)
+      option.xAxis[0].data = data.product_name
       option.series = option.series.map(s => {
         return { ...s, data: data[s.id] || [] }
       })

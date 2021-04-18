@@ -1,16 +1,13 @@
 <template>
   <div class="container">
     <div class="toolbar">
-      <!-- <el-button
+      <el-button
         :disabled="selection.length === 0"
         @click="handleExport"
         icon="el-icon-download"
         size="small"
       >
         导出
-      </el-button> -->
-      <el-button @click="handleRefresh" icon="el-icon-refresh" size="small">
-        刷新
       </el-button>
       <el-button
         :disabled="selection.length === 0"
@@ -20,9 +17,12 @@
       >
         删除
       </el-button>
+      <el-button @click="handleRefresh" icon="el-icon-refresh" size="small">
+        刷新
+      </el-button>
       <el-tooltip content="设置过滤条件" placement="left">
         <el-button
-          style="float:right"
+          style="float: right"
           size="mini"
           type="primary"
           icon="iconfont icon-guolv"
@@ -50,7 +50,7 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               value-format="yyyy-MM-dd"
-              style="width:320px"
+              style="width: 320px"
             >
             </el-date-picker>
           </el-form-item>
@@ -139,12 +139,13 @@
 <script>
 import Alert from '@/components/Alert'
 import CommonSearch from '../components/CommonSearch.vue'
+import { templateDownLoad } from "./util";
 export default {
   components: {
     Alert,
     CommonSearch
   },
-  data () {
+  data() {
     return {
       loading: false,
       total: 0,
@@ -162,19 +163,19 @@ export default {
       suppliers: []
     }
   },
-  created () {
+  created() {
     this.fetchSuppliers()
     this.fetchData()
   },
   methods: {
-    fetchSuppliers () {
+    fetchSuppliers() {
       this.$axios.get('/supplier/getAllSupplierName').then(res => {
         if (res) {
           this.suppliers = res
         }
       })
     },
-    fetchData (extraParams = {}) {
+    fetchData(extraParams = {}) {
       this.loading = true
       const params = {
         pageNum: this.currentPage,
@@ -190,10 +191,10 @@ export default {
         }
       })
     },
-    handleSelectionChange (selection) {
+    handleSelectionChange(selection) {
       this.selection = selection
     },
-    handleDelete () {
+    handleDelete() {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -213,26 +214,27 @@ export default {
           })
       })
     },
-    handleExport () {
+    handleExport() {
       this.$confirm('确认导出选中数据吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        const params = {
-          data: this.selection
-        }
-        this.$axios.post('/report/export', params).then(res => {
-          if (res) {
-            this.$message({
-              type: 'success',
-              message: '导出成功!'
-            })
-          }
-        })
+        const ids = this.selection.map(item => item.in_id).join(',')
+        this.$axios.get('/export/rukujilu', { params: { ids } })
+          .then(res => {
+            if (res === false) {
+              this.$message.error('导出失败')
+              return null
+            }
+            this.selection = []
+            this.$refs.multipleTable.clearSelection();
+            const url = `http://localhost:3000/api/export/rukujilu?ids=${ids}`
+            templateDownLoad(url)
+          })
       })
     },
-    handleSubmit (formName) {
+    handleSubmit(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.filterVisible = false
@@ -240,14 +242,14 @@ export default {
         }
       })
     },
-    handleCanel (formName) {
+    handleCanel(formName) {
       this.filterVisible = false
       // this.$refs[formName].resetFields()
     },
-    handlePaginationChange (currentPage) {
+    handlePaginationChange(currentPage) {
       this.fetchData()
     },
-    handleRefresh () {
+    handleRefresh() {
       this.fetchData()
     }
   }

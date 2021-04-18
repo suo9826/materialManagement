@@ -2,12 +2,12 @@
   <el-card class="box-card">
     <div slot="header" class="clearfix">
       <span>{{ this.cardTiltle }}</span>
-      <i class="el-icon-refresh" style="float:right" @click="fresh"></i>
+      <i class="el-icon-refresh" style="float: right" @click="fresh"></i>
     </div>
     <div
       v-loading="loading"
       :id="`${chartsId}`"
-      style=" height: 300px;width: 100%;"
+      style="height: 300px; width: 100%"
     ></div>
   </el-card>
 </template>
@@ -43,7 +43,7 @@ export default {
   },
   watch: {
     option(newValue) {
-      this.myChart.setOption(newValue);
+      this.myChart.setOption(newValue, true);
     }
   },
   methods: {
@@ -63,7 +63,7 @@ export default {
 .clearfix:before,
 .clearfix:after {
   display: table;
-  content: "";
+  content: '';
 }
 .clearfix:after {
   clear: both;

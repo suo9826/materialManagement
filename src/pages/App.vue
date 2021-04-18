@@ -9,7 +9,7 @@
           @click="isMenuCollapse(true)"
         ></i>
         <i class="el-icon-s-unfold" v-else @click="isMenuCollapse(false)"></i>
-        <el-dropdown style="float:right" @command="handleCommand">
+        <el-dropdown style="float: right" @command="handleCommand">
           <span class="el-dropdown-link">
             下拉菜单<i class="el-icon-arrow-down el-icon--right"></i>
           </span>
@@ -42,12 +42,12 @@
               <span slot="title">首页</span>
             </el-menu-item>
             <el-menu-item index="/user">
-              <i class="el-icon-menu"></i>
+              <i class="el-icon-user-solid"></i>
               <span slot="title">用户管理</span>
             </el-menu-item>
             <el-submenu index="3">
               <template slot="title">
-                <i class="el-icon-location"></i>
+                <i class="el-icon-s-management"></i>
                 <span>物料管理</span>
               </template>
               <el-menu-item index="/bigclass">
@@ -59,36 +59,40 @@
                 <span slot="title">小类</span>
               </el-menu-item>
               <el-menu-item index="/push">
-                <i class="el-icon-setting"></i>
+                <i class="el-icon-edit-outline"></i>
                 <span slot="title">入库</span>
               </el-menu-item>
               <el-menu-item index="/out">
-                <i class="el-icon-setting"></i>
+                <i class="el-icon-edit-outline"></i>
                 <span slot="title">出库</span>
               </el-menu-item>
             </el-submenu>
             <el-menu-item index="/stockManage">
-              <i class="el-icon-document"></i>
-              <span slot="title">库存</span>
+              <i class="el-icon-s-goods"></i>
+              <span slot="title">产品库存</span>
             </el-menu-item>
             <el-menu-item index="/supplier">
-              <i class="el-icon-setting"></i>
+              <i class="el-icon-s-shop"></i>
               <span slot="title">供应商</span>
             </el-menu-item>
             <el-submenu index="4">
               <template slot="title">
-                <i class="el-icon-location"></i>
+                <i class="el-icon-s-order"></i>
                 <span>报表</span>
               </template>
               <el-menu-item index="/put-report">
-                <i class="el-icon-setting"></i>
+                <i class="el-icon-document"></i>
                 <span slot="title">入库记录</span>
               </el-menu-item>
               <el-menu-item index="/out-report">
-                <i class="el-icon-setting"></i>
+                <i class="el-icon-document"></i>
                 <span slot="title">出库记录</span>
               </el-menu-item>
             </el-submenu>
+            <el-menu-item index="/plan">
+              <i class="el-icon-document"></i>
+              <span slot="title">采购计划</span>
+            </el-menu-item>
           </el-menu>
         </el-aside>
         <el-main>
@@ -112,23 +116,23 @@ export default {
   components: {
     Password
   },
-  data () {
+  data() {
     return {
       dialogVisible: false,
       isCollapse: false,
       activeUrl: '/home'
     }
   },
-  created () {
+  created() {
     this.activeUrl = this.$route.path
     this.url = 'http://39.105.68.212/yanzheng?' + 'a=' + Math.random()
   },
   methods: {
-    isMenuCollapse (collapse) {
+    isMenuCollapse(collapse) {
       this.isCollapse = collapse
       console.log('collapse', collapse)
     },
-    handleCommand (command) {
+    handleCommand(command) {
       switch (command) {
         case 'password':
           this.dialogVisible = true
@@ -140,13 +144,13 @@ export default {
           return null
       }
     },
-    handleOpen (key, keyPath) {
+    handleOpen(key, keyPath) {
       console.log(key, keyPath)
     },
-    handleClose (key, keyPath) {
+    handleClose(key, keyPath) {
       console.log(key, keyPath)
     },
-    handleSubmit (value) {
+    handleSubmit(value) {
       this.resetVisible()
       this.$axios
         .post('/user/password', {
@@ -156,7 +160,7 @@ export default {
           console.log(res)
         })
     },
-    resetVisible () {
+    resetVisible() {
       this.dialogVisible = false
     }
   }
