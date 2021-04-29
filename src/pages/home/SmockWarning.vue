@@ -1,16 +1,19 @@
 <template>
-  <charts-card
-    class="half-charts"
-    key="stockWarning"
-    cardTiltle="库存预警"
-    :option="option"
-    @onFresh="handleFresh"
-    chartsId="bb"
+  <card-panel
+    title="库存预警"
+    style="margin-bottom: 10px"
     :loading="loading"
-  ></charts-card>
+    @refresh="fetchData"
+  >
+    <v-chart
+      :autoresize="true"
+      style="height: 300px; width: '100%'"
+      :option="option"
+      :update-options="{ notMerge: true }"
+    />
+  </card-panel>
 </template>
 <script>
-import ChartsCard from '../../components/ChartsCard.vue'
 import { cloneDeep } from 'lodash'
 const basicOption = {
   tooltip: {
@@ -55,25 +58,24 @@ const basicOption = {
 }
 
 export default {
-  components: { ChartsCard },
-  data() {
+  data () {
     return {
       option: basicOption,
       loading: false,
       interval: null
     }
   },
-  created() {
+  created () {
     this.fetchData()
     this.interval = setInterval(() => {
       this.fetchData()
     }, 60000)
   },
-  beforeDestroy() {
+  beforeDestroy () {
     this.interval = clearInterval(this.interval)
   },
   methods: {
-    fetchData() {
+    fetchData () {
       this.loading = true
       this.$axios.get('/smockWarning').then(res => {
         this.loading = false
@@ -82,10 +84,10 @@ export default {
         }
       })
     },
-    handleFresh() {
+    handleFresh () {
       this.fetchData()
     },
-    calcOption(data = {}) {
+    calcOption (data = {}) {
       const option = cloneDeep(basicOption)
       option.xAxis[0].data = data.product_name
       option.series = option.series.map(s => {
@@ -96,11 +98,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.container {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 10px;
-  overflow: auto;
-}
-</style>

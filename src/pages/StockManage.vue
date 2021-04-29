@@ -38,8 +38,10 @@
       @selection-change="handleSelectionChange"
       height="calc(100% - 120px)"
       v-loading="loading"
+      :row-key="(row) => row.product_id"
     >
-      <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table-column :reserve-selection="true" type="selection" width="55">
+      </el-table-column>
       <el-table-column label="名称" min-width="100px">
         <template slot-scope="scope">
           <el-link
@@ -233,7 +235,7 @@ export default {
     Alert,
     CommonSearch
   },
-  data() {
+  data () {
     const checkName = (rule, value, callback) => {
       if (value == '') {
         callback(new Error('请输入名称'))
@@ -302,13 +304,13 @@ export default {
       loading: false
     }
   },
-  created() {
+  created () {
     this.fetchBigClass()
     this.fetchSuppliers()
     this.fetchData()
   },
   methods: {
-    beforeAvatarUpload(file) {
+    beforeAvatarUpload (file) {
       this.file = file
       const isJPG = file.type === 'image/jpeg'
       const isLt2M = file.size / 1024 / 1024 < 2
@@ -320,7 +322,7 @@ export default {
       }
       return isJPG && isLt2M
     },
-    upload() {
+    upload () {
       let formData = new FormData()
       formData.append('file', this.file)
       this.$axios
@@ -336,33 +338,33 @@ export default {
           }
         })
     },
-    loadDemo() {
+    loadDemo () {
       this.$axios.get('/product/ruku/loadDemo')
     },
-    handleRemove() {
+    handleRemove () {
       this.ruleForm.product_root = ''
     },
-    fetchSuppliers() {
+    fetchSuppliers () {
       this.$axios.get('/supplier/getAllSupplierName').then(res => {
         if (res) {
           this.suppliers = res
         }
       })
     },
-    handleChange(value) {
+    handleChange (value) {
       this.ruleForm.product_typemin = ''
       this.$axios.get('/type/getmin', { params: { id: value } }).then(res => {
         this.smallList = res
       })
     },
-    fetchBigClass() {
+    fetchBigClass () {
       this.$axios.get('/type/getmax').then(res => {
         if (res) {
           this.bigClassList = res
         }
       })
     },
-    fetchData(extraParams = {}) {
+    fetchData (extraParams = {}) {
       this.loading = true
       const params = {
         pageNum: this.currentPage,
@@ -377,10 +379,10 @@ export default {
         }
       })
     },
-    handleSelectionChange(selection) {
+    handleSelectionChange (selection) {
       this.selection = selection
     },
-    handleDelete() {
+    handleDelete () {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -394,13 +396,13 @@ export default {
           })
           .then(res => {
             if (res.success) {
-              this.selection = []
+              this.clearSelection()
               this.fetchData()
             }
           })
       })
     },
-    onUpdate(row) {
+    onUpdate (row) {
       this.action = 'update'
       this.oldName = row.product_name
       this.dialogtitle = '编辑产品'
@@ -427,7 +429,7 @@ export default {
       }
       this.visible = true
     },
-    onCreate() {
+    onCreate () {
       this.action = 'create'
       this.dialogtitle = '新建产品'
       this.ruleForm = {
@@ -442,7 +444,7 @@ export default {
       }
       this.visible = true
     },
-    handleSubmit(formName) {
+    handleSubmit (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$axios
@@ -459,22 +461,22 @@ export default {
         }
       })
     },
-    handleCanel(formName) {
+    handleCanel (formName) {
       this.visible = false
       this.$refs[formName].resetFields()
     },
-    handleSearch(filter) {
+    handleSearch (filter) {
       this.filter = filter
       this.currentPage = 1
       this.fetchData()
     },
-    handlePaginationChange(currentPage) {
+    handlePaginationChange (currentPage) {
       this.fetchData()
     },
-    handleClearPhoto() {
+    handleClearPhoto () {
       this.ruleForm.product_root = ""
     },
-    handleExport() {
+    handleExport () {
       this.$confirm('确认导出选中数据吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -487,13 +489,17 @@ export default {
               this.$message.error('导出失败')
               return null
             }
-            this.selection = []
+            this.clearSelection()
             this.$refs.multipleTable.clearSelection();
             const url = `http://localhost:3000/api/export/kucun?ids=${ids}`
             templateDownLoad(url)
           })
       })
     },
+    clearSelection () {
+      this.selection = [];
+      this.$refs.multipleTable.clearSelection()
+    }
   }
 }
 </script>

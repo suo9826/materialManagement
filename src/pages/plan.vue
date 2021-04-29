@@ -27,8 +27,10 @@
       @selection-change="handleSelectionChange"
       height="calc(100% - 120px)"
       v-loading="loading"
+      :row-key="(row) => row.product_id"
     >
-      <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table-column :reserve-selection="true" type="selection" width="55">
+      </el-table-column>
       <el-table-column
         label="名称"
         prop="product_name"
@@ -82,7 +84,7 @@ export default {
     Alert,
     CommonSearch
   },
-  data() {
+  data () {
     return {
       total: 0,
       currentPage: 1,
@@ -92,11 +94,11 @@ export default {
       loading: false
     }
   },
-  created() {
+  created () {
     this.fetchData()
   },
   methods: {
-    fetchData(extraParams = {}) {
+    fetchData (extraParams = {}) {
       this.loading = true
       const params = {
         pageNum: this.currentPage,
@@ -111,18 +113,18 @@ export default {
         }
       })
     },
-    handleSelectionChange(selection) {
+    handleSelectionChange (selection) {
       this.selection = selection
     },
-    handleSearch(filter) {
+    handleSearch (filter) {
       this.filter = filter
       this.currentPage = 1
       this.fetchData()
     },
-    handlePaginationChange(currentPage) {
+    handlePaginationChange (currentPage) {
       this.fetchData()
     },
-    handleExport() {
+    handleExport () {
       this.$confirm('确认导出选中数据吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -135,13 +137,17 @@ export default {
               this.$message.error('导出失败')
               return null
             }
-            this.selection = []
+            this.clearSelection()
             this.$refs.multipleTable.clearSelection();
             const url = `http://localhost:3000/api/export/caigou?ids=${ids}`
             templateDownLoad(url)
           })
       })
     },
+    clearSelection () {
+      this.selection = [];
+      this.$refs.multipleTable.clearSelection()
+    }
   }
 }
 </script>

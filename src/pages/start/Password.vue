@@ -52,11 +52,11 @@ export default {
     }
   },
   watch: {
-    dialogVisible(newValue) {
+    dialogVisible (newValue) {
       this.visible = newValue;
     }
   },
-  data() {
+  data () {
     var validatePass = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入新密码"));
@@ -101,14 +101,14 @@ export default {
       userInfo: {}
     };
   },
-  created() {
+  created () {
     this.$axios.get("/user/info").then(res => {
       this.userInfo = res;
       this.username = res.user_name;
     });
   },
   methods: {
-    handleSubmit(formName) {
+    handleSubmit (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$axios
@@ -130,7 +130,7 @@ export default {
         }
       });
     },
-    handleCanel(formName) {
+    handleCanel (formName) {
       this.$refs[formName].resetFields();
       this.$emit("onCancel");
     }

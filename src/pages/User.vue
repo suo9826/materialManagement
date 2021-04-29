@@ -32,8 +32,14 @@
       @selection-change="handleSelectionChange"
       height="calc(100% - 120px)"
       v-loading="loading"
+      :row-key="(row) => row.user_id"
     >
-      <el-table-column :selectable="checkSelect" type="selection" width="55">
+      <el-table-column
+        :reserve-selection="true"
+        :selectable="checkSelect"
+        type="selection"
+        width="55"
+      >
       </el-table-column>
       <el-table-column label="用户名" min-width="200px" prop="user_name">
         <template slot-scope="scope">
@@ -162,7 +168,7 @@ export default {
     Alert,
     CommonSearch
   },
-  data() {
+  data () {
     var validatePass = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入密码"));
@@ -226,19 +232,19 @@ export default {
       loading: false
     };
   },
-  created() {
+  created () {
     this.fetchData();
     this.fetchUserInfo();
   },
   methods: {
-    fetchUserInfo() {
+    fetchUserInfo () {
       this.$axios.get("/user/info").then(res => {
         this.userInfo = res;
         console.log(123, this.userInfo);
         this.level = res.user_level;
       });
     },
-    fetchData(extraParams = {}) {
+    fetchData (extraParams = {}) {
       this.loading = true;
       const params = {
         pageNum: this.currentPage,
@@ -257,10 +263,10 @@ export default {
         }
       });
     },
-    handleSelectionChange(selection) {
+    handleSelectionChange (selection) {
       this.selection = selection;
     },
-    handleDelete() {
+    handleDelete () {
       this.$confirm("此操作将删除选中数据, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -272,14 +278,14 @@ export default {
           }
         }).then((res) => {
           if (res.success) {
-            this.selection = []
+            this.clearSelection()
             this.fetchData(_, true)
           }
         })
           ;
       });
     },
-    onUpdate(row) {
+    onUpdate (row) {
       this.action = "update";
       this.dialogtitle = "编辑用户";
       const newRuleForm = {
@@ -295,7 +301,7 @@ export default {
       }
       this.visible = true;
     },
-    onCreate() {
+    onCreate () {
       this.action = "create";
       this.dialogtitle = "新建用户";
       this.ruleForm = {
@@ -308,7 +314,7 @@ export default {
       this.visible = true;
       this.editable = true;
     },
-    handleSubmit(formName) {
+    handleSubmit (formName) {
       this.$refs[formName].validate((valid, valuas) => {
         if (valid) {
           const { user_checkPass, time, ...restprops } = this.ruleForm;
@@ -333,6 +339,7 @@ export default {
                     this.fetchData();
                   }
                 } else {
+                  this.$message.success('添加用户成功')
                   this.fetchData();
                 }
               }
@@ -340,22 +347,22 @@ export default {
         }
       });
     },
-    handleCanel(formName) {
+    handleCanel (formName) {
       this.visible = false;
       this.$refs[formName].resetFields();
     },
-    handleSearch(filter) {
+    handleSearch (filter) {
       this.filter = filter;
       this.currentPage = 1;
       this.fetchData();
     },
-    handlePaginationChange() {
+    handlePaginationChange () {
       this.fetchData();
     },
-    checkSelect(row, index) {
+    checkSelect (row, index) {
       return row.check;
     },
-    formatterUserLevel(userLevel) {
+    formatterUserLevel (userLevel) {
       switch (userLevel) {
         case 1:
           return "普通用户";
@@ -366,6 +373,10 @@ export default {
         default:
           return "";
       }
+    },
+    clearSelection () {
+      this.selection = []
+      this.$refs.multipleTable.clearSelection()
     }
   }
 };

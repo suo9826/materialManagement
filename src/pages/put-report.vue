@@ -93,8 +93,10 @@
       tooltip-effect="dark"
       style="width: 100%"
       @selection-change="handleSelectionChange"
+      :row-key="(row) => row.in_id"
     >
-      <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table-column :reserve-selection="true" type="selection" width="55">
+      </el-table-column>
       <el-table-column label="时间" min-width="200px" prop="in_time">
       </el-table-column>
       <el-table-column
@@ -145,7 +147,7 @@ export default {
     Alert,
     CommonSearch
   },
-  data() {
+  data () {
     return {
       loading: false,
       total: 0,
@@ -163,19 +165,19 @@ export default {
       suppliers: []
     }
   },
-  created() {
+  created () {
     this.fetchSuppliers()
     this.fetchData()
   },
   methods: {
-    fetchSuppliers() {
+    fetchSuppliers () {
       this.$axios.get('/supplier/getAllSupplierName').then(res => {
         if (res) {
           this.suppliers = res
         }
       })
     },
-    fetchData(extraParams = {}) {
+    fetchData (extraParams = {}) {
       this.loading = true
       const params = {
         pageNum: this.currentPage,
@@ -191,10 +193,10 @@ export default {
         }
       })
     },
-    handleSelectionChange(selection) {
+    handleSelectionChange (selection) {
       this.selection = selection
     },
-    handleDelete() {
+    handleDelete () {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -208,13 +210,13 @@ export default {
           })
           .then(res => {
             if (res.success) {
-              this.selection = []
+              this.clearSelection()
               this.fetchData()
             }
           })
       })
     },
-    handleExport() {
+    handleExport () {
       this.$confirm('确认导出选中数据吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -227,14 +229,14 @@ export default {
               this.$message.error('导出失败')
               return null
             }
-            this.selection = []
+            this.clearSelection()
             this.$refs.multipleTable.clearSelection();
             const url = `http://localhost:3000/api/export/rukujilu?ids=${ids}`
             templateDownLoad(url)
           })
       })
     },
-    handleSubmit(formName) {
+    handleSubmit (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.filterVisible = false
@@ -242,15 +244,19 @@ export default {
         }
       })
     },
-    handleCanel(formName) {
+    handleCanel (formName) {
       this.filterVisible = false
       // this.$refs[formName].resetFields()
     },
-    handlePaginationChange(currentPage) {
+    handlePaginationChange (currentPage) {
       this.fetchData()
     },
-    handleRefresh() {
+    handleRefresh () {
       this.fetchData()
+    },
+    clearSelection () {
+      this.selection = [];
+      this.$refs.multipleTable.clearSelection()
     }
   }
 }

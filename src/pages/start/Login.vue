@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="login">
-      <p style="color: #fff;font-size:26px">基于多源异构的MES物料管理系统</p>
+      <p style="color: #fff; font-size: 26px">基于多源异构的MES物料管理系统</p>
       <el-form
         class="loginForm"
         ref="loginForm"
@@ -49,7 +49,9 @@
         <el-form-item class="footertext">
           <span>
             已经注册？
-            <router-link style="color:#409EFF" to="/sign">点击登录</router-link>
+            <router-link style="color: #409eff" to="/sign"
+              >点击登录</router-link
+            >
           </span>
         </el-form-item>
       </el-form>
@@ -58,7 +60,7 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     var validatePass = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入密码"));
@@ -104,7 +106,7 @@ export default {
     };
   },
   methods: {
-    submitForm(formName) {
+    submitForm (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           const { name, pass } = this.ruleForm;
@@ -119,8 +121,6 @@ export default {
                 setTimeout(() => {
                   this.$router.push("/sign");
                 }, 1000);
-              } else {
-                this.$message.error(res.msg);
               }
             });
         } else {
@@ -133,7 +133,7 @@ export default {
 </script>
 <style scoped>
 .container {
-  background-image: url("../../assets/imgs/background.jpg");
+  background-image: url('../../assets/imgs/background.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   height: 100vh;

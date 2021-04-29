@@ -1,16 +1,19 @@
 <template>
-  <charts-card
-    chartsId="aaa"
-    class="half-charts"
-    key="bigclassstatus1"
-    cardTiltle="大类分布状态"
-    :option="option"
-    @onFresh="handleFresh"
+  <card-panel
+    title="大类分布状态"
+    style="margin-bottom: 10px"
     :loading="loading"
-  ></charts-card>
+    @refresh="fetchData"
+  >
+    <v-chart
+      :autoresize="true"
+      style="height: 300px; width: '100%'"
+      :option="option"
+      :update-options="{ notMerge: true }"
+    />
+  </card-panel>
 </template>
 <script>
-import ChartsCard from '../../components/ChartsCard.vue'
 import { cloneDeep } from 'lodash'
 const basicOption = {
   tooltip: {
@@ -39,25 +42,24 @@ const basicOption = {
 }
 
 export default {
-  components: { ChartsCard },
-  data() {
+  data () {
     return {
       option: basicOption,
       loading: false,
       interval: null
     }
   },
-  created() {
+  created () {
     this.fetchData()
     this.interval = setInterval(() => {
       this.fetchData()
     }, 60000)
   },
-  beforeDestroy() {
+  beforeDestroy () {
     this.interval = clearInterval(this.interval)
   },
   methods: {
-    fetchData() {
+    fetchData () {
       this.loading = true
       this.$axios.get('/typemaxStatus').then(res => {
         this.loading = false
@@ -66,10 +68,10 @@ export default {
         }
       })
     },
-    handleFresh() {
-      this.fetchData()
-    },
-    calcOption(data = {}) {
+    // handleFresh () {
+    //   this.fetchData()
+    // },
+    calcOption (data = {}) {
       const option = cloneDeep(basicOption)
       option.series = option.series.map(s => {
         return { ...s, data: data[s.id] || [] }
@@ -80,11 +82,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.container {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 10px;
-  overflow: auto;
-}
-</style>

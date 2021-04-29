@@ -1,5 +1,12 @@
 <template>
-  <div class="container">
+  <div class="container" v-loading="uploading">
+    <div style="margin-bottom: 20px">
+      <span>录入方式：</span>
+      <el-radio-group v-model="ruleForm.methods">
+        <el-radio label="1">人工录入</el-radio>
+        <el-radio label="3">文件录入</el-radio>
+      </el-radio-group>
+    </div>
     <el-form
       ref="ruleForm"
       class="containerForm"
@@ -8,89 +15,128 @@
       :model="ruleForm"
       :rules="rules"
     >
-      <el-form-item label="录入方式" prop="methods">
-        <el-radio-group v-model="ruleForm.methods">
-          <el-radio label="1">人工录入</el-radio>
-          <el-radio label="3">文件录入</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item
-        v-if="ruleForm.methods === '3'"
-        label="上传文件"
-        :required="ruleForm.methods === '3'"
-      >
-        <el-upload
-          class="upload-demo"
-          drag
-          action=""
-          :before-upload="beforeFileUpload"
-          :multiple="false"
-          :file-list="fileList"
-          name="excelFile"
-          :http-request="uploadFile"
-          :on-change="handleFileListChange"
-          :on-remove="handleFileRemove"
-        >
-          <i class="el-icon-upload"></i>
-          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-          <div class="el-upload__tip" slot="tip">
-            只能上传excel，且不超过2MB
-            <a @click="loadDemo">下载示例模板</a>
-          </div>
-        </el-upload>
-      </el-form-item>
-      <el-form-item label="产品名称" prop="product_id">
-        <el-select
-          filterable
-          v-model="ruleForm.product_id"
-          placeholder="请选择"
-        >
-          <el-option
-            v-for="item in productList"
-            :key="item.product_id"
-            :label="item.product_name"
-            :value="item.product_id"
+      <template v-if="ruleForm.methods === '1'">
+        <el-form-item label="产品名称" prop="product_id">
+          <el-select
+            filterable
+            v-model="ruleForm.product_id"
+            placeholder="请选择"
           >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="时间" prop="date">
-        <el-date-picker
-          type="date"
-          placeholder="选择日期"
-          v-model="ruleForm.date"
-          style="width: 100%"
-          value-format="timestamp"
-        ></el-date-picker>
-      </el-form-item>
-      <el-form-item label="数量" prop="product_nums" required>
-        <el-input-number
-          v-model="ruleForm.product_nums"
-          :min="1"
-          label="描述文字"
-        ></el-input-number>
-      </el-form-item>
-      <el-form-item label="供应商" prop="product_supplier">
-        <el-select
-          v-model="ruleForm.product_supplier"
-          placeholder="请选择供应商"
-        >
-          <el-option
-            v-for="item in suppliers"
-            :key="item"
-            :label="item"
-            :value="item"
+            <el-option
+              v-for="item in productList"
+              :key="item.product_id"
+              :label="item.product_name"
+              :value="item.product_id"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="时间" prop="date">
+          <el-date-picker
+            type="date"
+            placeholder="选择日期"
+            v-model="ruleForm.date"
+            style="width: 100%"
+            value-format="timestamp"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="数量" prop="product_nums" required>
+          <el-input-number
+            v-model="ruleForm.product_nums"
+            :min="1"
+            label="描述文字"
+          ></el-input-number>
+        </el-form-item>
+        <el-form-item label="供应商" prop="product_supplier">
+          <el-select
+            v-model="ruleForm.product_supplier"
+            placeholder="请选择供应商"
           >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item class="formFotter">
-        <el-button type="primary" @click="submitForm('ruleForm')"
-          >提交</el-button
-        >
-        <el-button @click="resetForm('ruleForm')">重置</el-button>
-      </el-form-item>
+            <el-option
+              v-for="item in suppliers"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item class="formFotter">
+          <el-button type="primary" @click="submitForm('ruleForm')"
+            >提交</el-button
+          >
+          <el-button @click="resetForm('ruleForm')">重置</el-button>
+        </el-form-item>
+      </template>
     </el-form>
+    <template v-if="ruleForm.methods === '3'">
+      <el-upload
+        class="upload-demo"
+        style="display: inline-block; margin-right: 10px"
+        action=""
+        :before-upload="beforeFileUpload"
+        :multiple="false"
+        name="excelFile"
+        :http-request="uploadFile"
+        :show-file-list="false"
+      >
+        <el-tooltip
+          class="item"
+          effect="dark"
+          content="只能上传excel，且不超过2MB"
+          placement="top-start"
+        >
+          <el-button size="small" type="primary">点击上传</el-button>
+        </el-tooltip>
+      </el-upload>
+      <el-button
+        @click="handleClick"
+        :disabled="selection.length === 0"
+        size="small"
+        >提交</el-button
+      >
+      <el-table
+        :header-cell-style="{ background: 'rgb(238, 238, 238)' }"
+        ref="multipleTable"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%; margin-top: 10px"
+        @selection-change="handleSelectionChange"
+        :row-key="(row) => row.in_id"
+        height="300"
+      >
+        <el-table-column :reserve-selection="true" type="selection" width="55">
+        </el-table-column>
+        <el-table-column
+          prop="product_name"
+          label="产品名称"
+          min-width="150px"
+          show-overflow-tooltip
+        >
+        </el-table-column>
+        <el-table-column
+          prop="date"
+          min-width="100px"
+          label="时间"
+          show-overflow-tooltip
+        >
+        </el-table-column>
+        <el-table-column
+          prop="product_nums"
+          min-width="100px"
+          label="数量"
+          show-overflow-tooltip
+        >
+        </el-table-column>
+        <el-table-column
+          prop="product_supplier"
+          min-width="100px"
+          label="供应商"
+          show-overflow-tooltip
+        >
+        </el-table-column>
+      </el-table>
+    </template>
   </div>
 </template>
 <script>
@@ -114,7 +160,10 @@ export default {
       },
       file: null,
       fileList: [],
-      productList: []
+      productList: [],
+      tableData: [],
+      selection: [],
+      uploading: false
     }
   },
   created () {
@@ -163,6 +212,7 @@ export default {
       return isExcel && isLt2M
     },
     uploadFile () {
+      this.uploading = true
       let formData = new FormData()
       formData.append('excelFile', this.file)
       this.$axios
@@ -172,38 +222,24 @@ export default {
           }
         })
         .then(res => {
+          this.uploading = false
           if (res.success) {
-            const {
-              date,
-              product_id,
-              product_nums,
-              product_root,
-              product_supplier
-            } = res.data
-            this.ruleForm = {
-              product_id: product_id || '',
-              methods: '3',
-              product_nums: product_nums || 1,
-              product_supplier: product_supplier || '',
-              date: date || '',
-              product_root: product_root || ''
-            }
-            console.log(this.fileList)
+            this.tableData = res.data
           }
         })
     },
-    handleFileListChange (file, fileList) {
-      this.fileList = fileList.slice(-1)
+    handleSelectionChange (selection) {
+      this.selection = selection
     },
-    handleFileRemove () {
-      this.ruleForm = {
-        ...this.ruleForm,
-        product_name: '',
-        methods: '3',
-        product_nums: 1,
-        product_supplier: '',
-        date: ''
-      }
+    handleClick () {
+      this.$axios.post('/product/rukupiliang', this.selection).then(res => {
+        if (res.success) {
+          this.$message.success('提交成功')
+          this.tableData = []
+          this.selection = []
+          this.$refs.multipleTable.clearSelection()
+        }
+      })
     }
   }
 }

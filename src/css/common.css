@@ -60,6 +60,10 @@ a {
 .el-table {
   height: calc(100% - 120px);
 }
+.el-card__header,
+.el-card__body {
+  padding: 8px !important;
+}
 /* 滚动槽 */
 ::-webkit-scrollbar {
   width: 6px;

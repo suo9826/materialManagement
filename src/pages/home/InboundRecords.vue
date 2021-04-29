@@ -1,13 +1,9 @@
 <template>
-  <el-card class="charts" style="margin-bottom:10px">
-    <div slot="header" class="clearfix">
-      <span>最近10条入库记录</span>
-      <i
-        class="el-icon-refresh"
-        style="float:right;cursor:pointer;"
-        @click="handleFresh"
-      ></i>
-    </div>
+  <card-panel
+    title="最近10条入库记录"
+    style="margin-bottom: 10px"
+    @refresh="handleFresh"
+  >
     <el-table
       v-loading="loading"
       :header-cell-style="{ background: 'rgb(238, 238, 238)' }"
@@ -15,6 +11,7 @@
       :data="tableData"
       tooltip-effect="dark"
       style="width: 100%"
+      height="300"
     >
       <el-table-column label="时间" min-width="200px" prop="in_time">
       </el-table-column>
@@ -47,7 +44,7 @@
       >
       </el-table-column>
     </el-table>
-  </el-card>
+  </card-panel>
 </template>
 
 <script>

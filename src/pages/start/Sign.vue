@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="sign">
-      <p style="color: #fff;font-size:26px">基于多源异构的MES物料管理系统</p>
+      <p style="color: #fff; font-size: 26px">基于多源异构的MES物料管理系统</p>
       <el-form
         :hide-required-asterisk="true"
         class="signForm"
@@ -52,7 +52,7 @@
         <el-form-item class="footertext">
           <span>
             还没注册？
-            <router-link style="color:#409EFF" to="/login"
+            <router-link style="color: #409eff" to="/login"
               >点击注册</router-link
             >
           </span>
@@ -63,7 +63,7 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       url: "",
       form: {
@@ -101,14 +101,14 @@ export default {
       }
     };
   },
-  created() {
+  created () {
     this.getCode();
   },
   methods: {
-    getCode() {
+    getCode () {
       this.url = "http://39.105.68.212/yanzheng?" + "a=" + Math.random();
     },
-    submitForm(formName) {
+    submitForm (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           const code = this.form.code.toUpperCase();
@@ -124,7 +124,6 @@ export default {
               } else {
                 this.getCode();
                 this.form.code = "";
-                this.$message.error(res.msg);
               }
             });
         } else {
@@ -140,7 +139,7 @@ body {
   margin: 0px;
 }
 .container {
-  background-image: url("../../assets/imgs/background.jpg");
+  background-image: url('../../assets/imgs/background.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   height: 100vh;

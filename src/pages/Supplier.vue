@@ -38,8 +38,10 @@
       @selection-change="handleSelectionChange"
       height="calc(100% - 120px)"
       v-loading="loading"
+      :row-key="(row) => row.supplier_id"
     >
-      <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table-column :reserve-selection="true" type="selection" width="55">
+      </el-table-column>
       <el-table-column label="名称" min-width="150px">
         <template slot-scope="scope">
           <el-link
@@ -134,7 +136,7 @@ export default {
     Alert,
     CommonSearch
   },
-  data() {
+  data () {
     var checkPhone = (rule, value, callback) => {
       if (!value) {
         return callback(new Error('请输入电话'))
@@ -174,11 +176,11 @@ export default {
       loading: false
     }
   },
-  created() {
+  created () {
     this.fetchData()
   },
   methods: {
-    fetchData(extraParams = {}, isReset = false) {
+    fetchData (extraParams = {}) {
       this.loading = true
       const params = {
         pageNum: this.currentPage,
@@ -188,18 +190,15 @@ export default {
       this.$axios.post('/supplier/list', params).then(res => {
         this.loading = false
         if (res.success) {
-          if (isReset) {
-            this.resetTable()
-          }
           this.tableData = res.data.list
           this.total = res.data.total
         }
       })
     },
-    handleSelectionChange(selection) {
+    handleSelectionChange (selection) {
       this.selection = selection
     },
-    handleDelete() {
+    handleDelete () {
       this.$confirm('此操作将删除选中数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -213,16 +212,13 @@ export default {
           })
           .then(res => {
             if (res.success) {
+              this.clearSelection()
               this.fetchData()
             }
           })
       })
     },
-    resetTable() {
-      this.selection = []
-      this.currentPage = 1
-    },
-    onUpdate(row) {
+    onUpdate (row) {
       this.action = 'update'
       this.dialogtitle = '编辑供应商'
       this.ruleForm = {
@@ -231,7 +227,7 @@ export default {
       }
       this.visible = true
     },
-    onCreate() {
+    onCreate () {
       this.action = 'create'
       this.dialogtitle = '新建供应商'
       this.ruleForm = {
@@ -244,7 +240,7 @@ export default {
       }
       this.visible = true
     },
-    handleSubmit(formName) {
+    handleSubmit (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.$axios
@@ -260,19 +256,19 @@ export default {
         }
       })
     },
-    handleCanel(formName) {
+    handleCanel (formName) {
       this.visible = false
       this.$refs[formName].resetFields()
     },
-    handleSearch(filter) {
+    handleSearch (filter) {
       this.filter = filter
       this.currentPage = 1
-      this.fetchData({}, true)
+      this.fetchData()
     },
-    handlePaginationChange() {
-      this.fetchData({}, false)
+    handlePaginationChange () {
+      this.fetchData()
     },
-    handleExport() {
+    handleExport () {
       this.$confirm('确认导出选中数据吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -283,6 +279,10 @@ export default {
         }
         this.$axios.post('/report/export', params)
       })
+    },
+    clearSelection () {
+      this.selection=[];
+      this.$refs.multipleTable.clearSelection()
     }
   }
 }

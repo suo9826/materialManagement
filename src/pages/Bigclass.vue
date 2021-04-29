@@ -26,8 +26,10 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
       height="calc(100% - 120px)"
+      :row-key="(row) => row.type_id"
     >
-      <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table-column :reserve-selection="true" type="selection" width="55">
+      </el-table-column>
       <el-table-column label="名称" width="200">
         <template slot-scope="scope">
           <el-link
@@ -92,7 +94,7 @@ export default {
     Alert,
     CommonSearch
   },
-  data() {
+  data () {
     return {
       total: 0,
       currentPage: 1,
@@ -113,11 +115,11 @@ export default {
       formLoading: false
     };
   },
-  created() {
+  created () {
     this.fetchData();
   },
   methods: {
-    fetchData(extraParams = {}) {
+    fetchData (extraParams = {}) {
       this.loading = true;
       const params = {
         type_pid: 0,
@@ -133,10 +135,10 @@ export default {
         }
       });
     },
-    handleSelectionChange(selection) {
+    handleSelectionChange (selection) {
       this.selection = selection;
     },
-    handleDelete() {
+    handleDelete () {
       this.$confirm(
         "此操作将删除选中数据以及选中数据下的所有小类, 是否继续?",
         "提示",
@@ -154,13 +156,13 @@ export default {
           })
           .then(res => {
             if (res.success) {
-              this.selection = []
+              this.clearSelection()
               this.fetchData();
             }
           });
       });
     },
-    onUpdate(row) {
+    onUpdate (row) {
       this.action = "update";
       this.dialogtitle = "编辑大类";
       this.ruleForm = {
@@ -169,7 +171,7 @@ export default {
       };
       this.visible = true;
     },
-    onCreate() {
+    onCreate () {
       this.action = "create";
       this.dialogtitle = "新建大类";
       this.ruleForm = {
@@ -178,7 +180,7 @@ export default {
       };
       this.visible = true;
     },
-    handleSubmit(formName) {
+    handleSubmit (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.formLoading = true;
@@ -206,17 +208,21 @@ export default {
         }
       });
     },
-    handleCanel(formName) {
+    handleCanel (formName) {
       this.visible = false;
       this.$refs[formName].resetFields();
     },
-    handleSearch(filter) {
+    handleSearch (filter) {
       this.filter = filter;
       this.currentPage = 1;
       this.fetchData();
     },
-    handlePaginationChange() {
+    handlePaginationChange () {
       this.fetchData();
+    },
+    clearSelection () {
+      this.selection = [];
+      this.$refs.multipleTable.clearSelection()
     }
   }
 };
